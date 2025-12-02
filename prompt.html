@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,27 +10,91 @@
   <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.5/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: white; }
-    .dark-gradient { background: linear-gradient(180deg, #1f2937 0%, #374151 100%); }
-    .sidebar { transition: width 0.3s; }
-    .sidebar-collapsed { width: 60px; }
-    .sidebar-expanded { width: 250px; }
-    .sidebar a { transition: background 0.2s; }
-    .main-content { transition: margin-left 0.3s; }
-    .card { background-color: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-    .tooltip { visibility: hidden; position: absolute; background-color: #1a202c; color: white; padding: 5px 10px; border-radius: 5px; z-index: 10; left: 70px; }
-    .sidebar-collapsed .nav-item:hover .tooltip { visibility: visible; }
-    .nav-item:hover { background-color: #4b5563; }
-    .link-hover:hover { color: #4b5563; }
-    .section-content { transition: all 0.3s ease; }
-    .video-container { border: 1px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: white;
+    }
+
+    .dark-gradient {
+      background: linear-gradient(180deg, #1f2937 0%, #374151 100%);
+    }
+
+    .sidebar {
+      transition: width 0.3s;
+    }
+
+    .sidebar-collapsed {
+      width: 60px;
+    }
+
+    .sidebar-expanded {
+      width: 250px;
+    }
+
+    .sidebar a {
+      transition: background 0.2s;
+    }
+
+    .main-content {
+      transition: margin-left 0.3s;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .tooltip {
+      visibility: hidden;
+      position: absolute;
+      background-color: #1a202c;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      z-index: 10;
+      left: 70px;
+    }
+
+    .sidebar-collapsed .nav-item:hover .tooltip {
+      visibility: visible;
+    }
+
+    .nav-item:hover {
+      background-color: #4b5563;
+    }
+
+    .link-hover:hover {
+      color: #4b5563;
+    }
+
+    .section-content {
+      transition: all 0.3s ease;
+    }
+
+    .video-container {
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
     @media (max-width: 768px) {
-      .sidebar { width: 0; overflow: hidden; }
-      .sidebar-expanded { width: 250px; }
-      .main-content { margin-left: 0; }
+      .sidebar {
+        width: 0;
+        overflow: hidden;
+      }
+
+      .sidebar-expanded {
+        width: 250px;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
     }
   </style>
 </head>
+
 <body>
   <div id="root"></div>
 
@@ -316,9 +381,8 @@
                   <button
                     onClick={handleCompleteCourse}
                     disabled={isCourseCompleted}
-                    className={`bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                      isCourseCompleted ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
-                    }`}
+                    className={`bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${isCourseCompleted ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+                      }`}
                   >
                     {isCourseCompleted ? 'Course Completed' : 'Complete Course'}
                   </button>
@@ -346,4 +410,5 @@
     }
   </script>
 </body>
+
 </html>

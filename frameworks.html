@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course: Prompt Engineering</title>
+    <title>Course: Frameworks of Web Development</title>
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.5/babel.min.js"></script>
@@ -240,56 +240,80 @@
         const CoursePage = () => {
             const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
             const [expandedSection, setExpandedSection] = useState(null);
+
+            // default course id EXACT as you requested
+            const DEFAULT_COURSE_ID = 'Frameworks of Web development';
+
+            const queryParams = new URLSearchParams(window.location.search);
+            // use provided id if present, otherwise fall back to exact default id
+            const courseId = queryParams.get('id') || DEFAULT_COURSE_ID;
+
+            // state for this course page only
             const [communityScore, setCommunityScore] = useState(0);
             const [coursesCompleted, setCoursesCompleted] = useState(0);
             const [isCourseCompleted, setIsCourseCompleted] = useState(false);
 
-            const queryParams = new URLSearchParams(window.location.search);
-            const courseId = queryParams.get('id') || 'Prompt Engineering';
-
-            // Course-specific localStorage keys
-            const communityScoreKey = `communityScore_${courseId}`;
-            const coursesCompletedKey = `coursesCompleted_${courseId}`;
+            // keys used for persistence (per-course)
+            const perCourseScoreKey = `score_${courseId}`;
             const completedKey = `completed_${courseId}`;
+            const coursesCompletedKey = `coursesCompleted_${courseId}`;
 
             useEffect(() => {
-                // Check if the course is already completed
-                const completed = localStorage.getItem(completedKey) === 'true';
-                setIsCourseCompleted(completed);
-                if (completed) {
-                    // If completed, set counters to their final values
-                    setCommunityScore(50);
-                    setCoursesCompleted(1);
-                } else {
-                    // Otherwise, initialize to 0
+                // read persisted per-course score and completion status
+                try {
+                    const storedScore = parseInt(localStorage.getItem(perCourseScoreKey), 10);
+                    const storedCompleted = localStorage.getItem(completedKey) === 'true';
+                    const storedCoursesCompleted = parseInt(localStorage.getItem(coursesCompletedKey), 10) || 0;
+
+                    if (!isNaN(storedScore) && storedScore > 0) {
+                        setCommunityScore(storedScore);
+                    } else {
+                        // default per-course score is 50 only after completion; if not completed store shows 0
+                        setCommunityScore(0);
+                    }
+
+                    setIsCourseCompleted(storedCompleted);
+                    setCoursesCompleted(storedCoursesCompleted);
+                } catch (e) {
+                    // ignore localStorage errors (e.g., private mode)
+                    console.warn('localStorage read failed', e);
                     setCommunityScore(0);
+                    setIsCourseCompleted(false);
                     setCoursesCompleted(0);
                 }
-            }, [completedKey]);
+            }, [perCourseScoreKey, completedKey, coursesCompletedKey]);
 
             const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
             const toggleExpand = (sectionTitle) => {
                 setExpandedSection(expandedSection === sectionTitle ? null : sectionTitle);
             };
 
+            // ---------- per-course completion logic ----------
             const handleCompleteCourse = () => {
                 if (isCourseCompleted) {
-                    console.log(`Course "${courseId}" is already completed!`);
+                    console.log(`Course "${courseId}" already completed.`);
                     return;
                 }
 
-                // Set the counters to their final values
+                try {
+                    // set 50 points for THIS course and mark completed
+                    localStorage.setItem(perCourseScoreKey, '50');
+                    localStorage.setItem(completedKey, 'true');
+                    localStorage.setItem(coursesCompletedKey, '1');
+                } catch (e) {
+                    console.warn('localStorage write failed', e);
+                }
+
+                // update page state (UI) for this course
                 setCommunityScore(50);
                 setCoursesCompleted(1);
                 setIsCourseCompleted(true);
 
-                // Save to localStorage
-                localStorage.setItem(communityScoreKey, '50');
-                localStorage.setItem(coursesCompletedKey, '1');
-                localStorage.setItem(completedKey, 'true');
-
-                console.log(`Course "${courseId}" completed! Community Score: 50, Courses Completed: 1`);
+                // NOTE: dashboard page reads all score_<course> entries from localStorage and sums them.
+                // So when user returns to dashboard, the community score will include this +50.
+                console.log(`Course "${courseId}" completed. +50 points stored at ${perCourseScoreKey}`);
             };
+            // ---------------------------------------------------
 
             return (
                 <div>
@@ -299,7 +323,7 @@
                             Rendering CoursePage, Expanded Section: {expandedSection || 'None'}
                         </div>
                         <div className="mb-6">
-                            <h1 className="text-3xl font-semibold text-gray-800">Frameworks of Web Development</h1>
+                            <h1 className="text-3xl font-semibold text-gray-800">{decodeURIComponent(courseId)}</h1>
                             <p className="text-sm text-gray-500">Started on 01.11.2023</p>
                         </div>
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

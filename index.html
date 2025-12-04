@@ -176,7 +176,7 @@
           <button
             className="text-gray-600"
             onClick={() => {
-              try { localStorage.clear(); } catch (e) {}
+              try { localStorage.clear(); } catch (e) { }
               window.location.href = 'login.html';
             }}
             title="Logout / Go to Login"
@@ -361,12 +361,12 @@
             </div>
           </a>
           <a href={`podcast.html`} className="block hover:bg-gray-100 rounded-lg transition-transform transition-shadow duration-200 ease-in-out hover:scale-105 hover:shadow-lg">
-  <div className="p-2">
-    <img src="images/podcast.jpg" alt="Project" className="w-full rounded-lg mb-2" />
-    <p className="text-sm font-medium text-gray-800">Make your own podcast</p>
-    <p className="text-xs text-[#60a5fa]">09.11.2023</p>
-  </div>
-</a>
+            <div className="p-2">
+              <img src="images/podcast.jpg" alt="Project" className="w-full rounded-lg mb-2" />
+              <p className="text-sm font-medium text-gray-800">Make your own podcast</p>
+              <p className="text-xs text-[#60a5fa]">09.11.2023</p>
+            </div>
+          </a>
         </div>
       </div>
     );
@@ -384,19 +384,28 @@
       ];
 
       useEffect(() => {
-        let totalCommunityScore = 0;
-        let completedCourses = 0;
+        let total = 0;
+        let completedCount = 0;
 
-        courses.forEach(course => {
-          const completedKey = `completed_${course}`;
-          if (localStorage.getItem(completedKey) === 'true') {
-            totalCommunityScore += 50;
-            completedCourses += 1;
+        // exact list of course IDs used in your course pages
+        const coursesList = [
+          'Prompt Engineering',
+          'Frameworks of Web development',
+          'Python for beginners',
+          'Make your own podcast'
+        ];
+
+        coursesList.forEach(course => {
+          // read per-course score key (default 0)
+          const perCourseScore = parseInt(localStorage.getItem(`score_${course}`), 10) || 0;
+          if (perCourseScore > 0) {
+            total += perCourseScore;
+            completedCount += 1;
           }
         });
 
-        setCommunityScore(totalCommunityScore);
-        setCoursesInProgress(4 - completedCourses);
+        setCommunityScore(total);
+        setCoursesInProgress(coursesList.length - completedCount);
       }, []);
 
       const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);

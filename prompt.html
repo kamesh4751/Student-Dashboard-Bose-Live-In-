@@ -240,56 +240,62 @@
     const CoursePage = () => {
       const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
       const [expandedSection, setExpandedSection] = useState(null);
-      const [communityScore, setCommunityScore] = useState(0);
+
+      // UI state local to this page
+      const [communityScore, setCommunityScore] = useState(0); // will reflect global community_total_score
       const [coursesCompleted, setCoursesCompleted] = useState(0);
       const [isCourseCompleted, setIsCourseCompleted] = useState(false);
 
       const queryParams = new URLSearchParams(window.location.search);
       const courseId = queryParams.get('id') || 'Prompt Engineering';
 
-      // Course-specific localStorage keys
-      const communityScoreKey = `communityScore_${courseId}`;
-      const coursesCompletedKey = `coursesCompleted_${courseId}`;
-      const completedKey = `completed_${courseId}`;
+      // Keys used:
+      // global total -> "community_total_score"
+      // per-course flag -> `completed_<courseId>`
+      // per-course stored score -> `score_<courseId>`
 
       useEffect(() => {
-        // Check if the course is already completed
-        const completed = localStorage.getItem(completedKey) === 'true';
+        // Initialize global community score
+        const globalScore = parseInt(localStorage.getItem("community_total_score") || "0", 10);
+        setCommunityScore(globalScore);
+
+        // Check this specific course completion
+        const completed = localStorage.getItem(`completed_${courseId}`) === 'true';
         setIsCourseCompleted(completed);
-        if (completed) {
-          // If completed, set counters to their final values
-          setCommunityScore(50);
-          setCoursesCompleted(1);
-        } else {
-          // Otherwise, initialize to 0
-          setCommunityScore(0);
-          setCoursesCompleted(0);
-        }
-      }, [completedKey]);
+
+        // Courses completed counter for this page: 1 if completed else 0
+        setCoursesCompleted(completed ? 1 : 0);
+      }, [courseId]);
 
       const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
       const toggleExpand = (sectionTitle) => {
         setExpandedSection(expandedSection === sectionTitle ? null : sectionTitle);
       };
 
+      // ---------- UPDATED: per-course completion handler (only logic changed) ----------
       const handleCompleteCourse = () => {
         if (isCourseCompleted) {
-          console.log(`Course "${courseId}" is already completed!`);
+          // already completed -> do nothing
           return;
         }
 
-        // Set the counters to their final values
-        setCommunityScore(50);
-        setCoursesCompleted(1);
+        const COURSE_POINTS = 50;
+
+        // Read global score, add course points once
+        const globalPrev = parseInt(localStorage.getItem("community_total_score") || "0", 10);
+        const globalNew = globalPrev + COURSE_POINTS;
+        localStorage.setItem("community_total_score", globalNew.toString());
+
+        // Persist per-course completed flag and per-course score
+        localStorage.setItem(`completed_${courseId}`, "true");
+        localStorage.setItem(`score_${courseId}`, COURSE_POINTS.toString());
+
+        // Update UI state
         setIsCourseCompleted(true);
-
-        // Save to localStorage
-        localStorage.setItem(communityScoreKey, '50');
-        localStorage.setItem(coursesCompletedKey, '1');
-        localStorage.setItem(completedKey, 'true');
-
-        console.log(`Course "${courseId}" completed! Community Score: 50, Courses Completed: 1`);
+        setCoursesCompleted(1);
+        setCommunityScore(globalNew);
       };
+      // -------------------------------------------------------------------------------
 
       return (
         <div>

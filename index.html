@@ -120,15 +120,18 @@
 
   <script type="text/babel">
     const { useState, useEffect } = React;
+    
+    // API Base URL
+    const API_URL = 'http://localhost:3001';
 
     const NavBar = ({ isSidebarCollapsed, toggleSidebar }) => {
       const navItems = [
         { name: 'Dashboard', path: 'index.html', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
         { name: 'Teachers', path: 'teachers.html', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
         { name: 'My Grades', path: 'grades.html', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
+        { name: 'Study Groups', path: 'study-groups.html', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z' },
         { name: 'Messages', path: 'messages.html', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 4.582 9 8z' },
         { name: 'Settings', path: 'settings.html', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' },
-        { name: 'Support', path: 'support.html', icon: 'M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z' },
       ];
 
       return (
@@ -156,7 +159,7 @@
       );
     };
 
-    const Header = () => (
+    const Header = ({ userName }) => (
       <div className="bg-white flex justify-between items-center p-4">
         <div className="flex items-center">
           <img src="images/logo.svg" alt="User avatar" className="w-10 h-10 rounded-full mr-4" />
@@ -169,16 +172,17 @@
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 01-6 0v-1m6 0H9" />
             </svg>
           </button>
-          <div className="flex items-center">
+          <a href="profile.html" className="flex items-center hover:opacity-80 transition">
             <img src="images/pfp.jpg" alt="Profile" className="w-8 h-8 rounded-full mr-2" />
-            <span className="text-gray-800">Olexander Melnik</span>
-          </div>
+            <span className="text-gray-800">{userName || 'User'}</span>
+          </a>
           <button
             className="text-gray-600"
             onClick={() => {
+              localStorage.clear();
               window.location.href = 'login.html';
             }}
-            title="Logout / Go to Login"
+            title="Logout"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -188,7 +192,7 @@
       </div>
     );
 
-    const SummaryReport = ({ communityScore, coursesInProgress }) => (
+    const SummaryReport = ({ communityScore, coursesInProgress, userProfile }) => (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="card p-4">
           <h3 className="text-sm font-medium text-gray-500">Courses in Progress</h3>
@@ -196,13 +200,13 @@
           <p className="text-xs text-gray-500">Keep up the great work!</p>
         </div>
         <div className="card p-4">
-          <h3 className="text-sm font-medium text-gray-500">Active Prototypes</h3>
-          <p className="text-2xl font-semibold text-gray-800">7</p>
-          <p className="text-xs text-gray-500">You're making great progress!</p>
+          <h3 className="text-sm font-medium text-gray-500">Groups Joined</h3>
+          <p className="text-2xl font-semibold text-gray-800">{userProfile?.groupsJoined || 0}</p>
+          <p className="text-xs text-gray-500">Collaborate and learn!</p>
         </div>
         <div className="card p-4">
-          <h3 className="text-sm font-medium text-gray-500">Hours Learning</h3>
-          <p className="text-2xl font-semibold text-gray-800">3h 15m</p>
+          <h3 className="text-sm font-medium text-gray-500">Courses Completed</h3>
+          <p className="text-2xl font-semibold text-gray-800">{userProfile?.coursesCompleted || 0}</p>
           <p className="text-xs text-gray-500">Keep up the momentum!</p>
         </div>
         <div className="card p-4">
@@ -334,70 +338,122 @@
       </div>
     );
 
-    const MyProjects = () => (
-      <div className="card p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">My Courses</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <a href="prompt.html" className="block hover:bg-gray-100 rounded-lg transition-transform transition-shadow duration-200 ease-in-out hover:scale-105 hover:shadow-lg">
-            <div className="p-2">
-              <img src="images/prompt.jpg" alt="Project" className="w-full rounded-lg mb-2" />
-              <p className="text-sm font-medium text-gray-800">Prompt Engineering</p>
-              <p className="text-xs text-[#60a5fa]">01.11.2023</p>
-            </div>
-          </a>
-          <a href="frameworks.html" className="block hover:bg-gray-100 rounded-lg transition-transform transition-shadow duration-200 ease-in-out hover:scale-105 hover:shadow-lg">
-            <div className="p-2">
-              <img src="images/web.jpg" alt="Project" className="w-full rounded-lg mb-2" />
-              <p className="text-sm font-medium text-gray-800">Frameworks of Web development</p>
-              <p className="text-xs text-[#60a5fa]">06.11.2023</p>
-            </div>
-          </a>
-          <a href="python.html" className="block hover:bg-gray-100 rounded-lg transition-transform transition-shadow duration-200 ease-in-out hover:scale-105 hover:shadow-lg">
-            <div className="p-2">
-              <img src="images/python.jpg" alt="Project" className="w-full rounded-lg mb-2" />
-              <p className="text-sm font-medium text-gray-800">Python for beginners</p>
-              <p className="text-xs text-[#60a5fa]">07.11.2023</p>
-            </div>
-          </a>
-          <a href="podcast.html" className="block hover:bg-gray-100 rounded-lg transition-transform transition-shadow duration-200 ease-in-out hover:scale-105 hover:shadow-lg">
-            <div className="p-2">
-              <img src="images/podcast.jpg" alt="Project" className="w-full rounded-lg mb-2" />
-              <p className="text-sm font-medium text-gray-800">Make your own podcast</p>
-              <p className="text-xs text-[#60a5fa]">09.11.2023</p>
-            </div>
-          </a>
+    const MyProjects = ({ courses, enrollments, loading }) => {
+      if (loading) {
+        return (
+          <div className="card p-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">My Courses</h3>
+            <div className="text-center py-8 text-gray-500">Loading courses...</div>
+          </div>
+        );
+      }
+
+      if (!courses || courses.length === 0) {
+        return (
+          <div className="card p-4">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">My Courses</h3>
+            <div className="text-center py-8 text-gray-500">No courses available</div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="card p-4">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Available Courses</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {courses.map(course => {
+              const isEnrolled = enrollments.some(e => e.courseId._id === course._id);
+              return (
+                <a 
+                  key={course._id} 
+                  href={`course.html?id=${course._id}&name=${encodeURIComponent(course.courseName)}`} 
+                  className="block hover:bg-gray-100 rounded-lg transition-transform transition-shadow duration-200 ease-in-out hover:scale-105 hover:shadow-lg"
+                >
+                  <div className="p-2">
+                    <img src={course.imageUrl} alt={course.courseName} className="w-full rounded-lg mb-2" />
+                    <p className="text-sm font-medium text-gray-800">{course.courseName}</p>
+                    <p className="text-xs text-[#60a5fa]">{course.instructor}</p>
+                    {isEnrolled && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mt-1 inline-block">
+                        Enrolled
+                      </span>
+                    )}
+                  </div>
+                </a>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    );
+      );
+    };
 
     const Dashboard = () => {
       const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
       const [communityScore, setCommunityScore] = useState(0);
-      const [coursesInProgress, setCoursesInProgress] = useState(4);
+      const [coursesInProgress, setCoursesInProgress] = useState(0);
+      const [userName, setUserName] = useState('');
+      const [userId, setUserId] = useState('');
+      const [courses, setCourses] = useState([]);
+      const [enrollments, setEnrollments] = useState([]);
+      const [userProfile, setUserProfile] = useState(null);
+      const [loading, setLoading] = useState(true);
 
       useEffect(() => {
-        let total = 0;
-        let completedCount = 0;
+        // Get user data from localStorage
+        const storedUserId = localStorage.getItem('userId');
+        const storedUserName = localStorage.getItem('userName');
+        
+        if (!storedUserId) {
+          // Not logged in, redirect to login
+          window.location.href = 'login.html';
+          return;
+        }
 
-        // EXACT course IDs matching the course page defaults
-        const coursesList = [
-          'Prompt Engineering',
-          'Frameworks of Web development',
-          'Python for beginners',
-          'Make your own podcast'
-        ];
+        setUserId(storedUserId);
+        setUserName(storedUserName);
 
-        coursesList.forEach(course => {
-          const perCourseScore = parseInt(localStorage.getItem(`score_${course}`), 10) || 0;
-          if (perCourseScore > 0) {
-            total += perCourseScore;
-            completedCount += 1;
-          }
-        });
-
-        setCommunityScore(total);
-        setCoursesInProgress(coursesList.length - completedCount);
+        // Fetch data
+        fetchDashboardData(storedUserId);
       }, []);
+
+      const fetchDashboardData = async (userId) => {
+        try {
+          // Fetch all data in parallel
+          const [coursesRes, profileRes, enrollmentsRes] = await Promise.all([
+            fetch(`${API_URL}/api/courses`),
+            fetch(`${API_URL}/api/profile/${userId}`),
+            fetch(`${API_URL}/api/enrollments/student/${userId}`)
+          ]);
+
+          const coursesData = await coursesRes.json();
+          const profileData = await profileRes.json();
+          const enrollmentsData = await enrollmentsRes.json();
+
+          // Set courses
+          if (coursesData.status === 'Success') {
+            setCourses(coursesData.courses);
+          }
+
+          // Set profile data
+          if (profileData.status === 'Success') {
+            setUserProfile(profileData.profile);
+            setCommunityScore(profileData.profile.communityScore || 0);
+          }
+
+          // Set enrollments
+          if (enrollmentsData.status === 'Success') {
+            setEnrollments(enrollmentsData.enrollments);
+            // Count courses in progress (enrolled but not completed)
+            const inProgress = enrollmentsData.enrollments.filter(e => e.status === 'enrolled').length;
+            setCoursesInProgress(inProgress);
+          }
+
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching dashboard data:', error);
+          setLoading(false);
+        }
+      };
 
       const toggleSidebar = () => setIsSidebarCollapsed(!isSidebarCollapsed);
 
@@ -405,8 +461,12 @@
         <div>
           <NavBar isSidebarCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
           <div className={`main-content bg-white ${isSidebarCollapsed ? 'ml-[60px]' : 'ml-[250px]'} p-6 min-h-screen`}>
-            <Header />
-            <SummaryReport communityScore={communityScore} coursesInProgress={coursesInProgress} />
+            <Header userName={userName} />
+            <SummaryReport 
+              communityScore={communityScore} 
+              coursesInProgress={coursesInProgress}
+              userProfile={userProfile}
+            />
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
               <div className="lg:col-span-2">
                 <Calendar />
@@ -416,7 +476,7 @@
                 <UpcomingEvents />
               </div>
             </div>
-            <MyProjects />
+            <MyProjects courses={courses} enrollments={enrollments} loading={loading} />
           </div>
         </div>
       );

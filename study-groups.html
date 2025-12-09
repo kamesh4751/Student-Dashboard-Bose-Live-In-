@@ -266,6 +266,11 @@
     };
 
     const GroupCard = ({ group, userId, onJoinLeave }) => {
+      // FIX: Check if courseId exists
+      if (!group.courseId) {
+        return null; // Don't render groups with invalid course references
+      }
+
       const isMember = group.members.some(m => m.userId._id === userId);
       const isAdmin = group.createdBy._id === userId;
       const isFull = group.members.length >= group.maxMembers;
@@ -372,6 +377,7 @@
       const [loading, setLoading] = useState(true);
       const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
       const [filterCourse, setFilterCourse] = useState('');
+      const [searchQuery, setSearchQuery] = useState('');
 
       useEffect(() => {
         const storedUserId = localStorage.getItem('userId');
@@ -394,7 +400,9 @@
           const coursesData = await coursesRes.json();
 
           if (groupsData.status === 'Success') {
-            setGroups(groupsData.groups);
+            // FIX: Filter out groups with null courseId
+            const validGroups = groupsData.groups.filter(g => g.courseId != null);
+            setGroups(validGroups);
           }
           if (coursesData.status === 'Success') {
             setCourses(coursesData.courses);
@@ -406,9 +414,22 @@
         }
       };
 
-      const filteredGroups = filterCourse 
-        ? groups.filter(g => g.courseId._id === filterCourse)
-        : groups;
+      const filteredGroups = groups.filter(g => {
+        // FIX: Check if courseId exists
+        if (!g.courseId) return false;
+        
+        // Filter by course
+        const matchesCourse = filterCourse ? g.courseId._id === filterCourse : true;
+        
+        // Filter by search query
+        const matchesSearch = searchQuery 
+          ? g.groupName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            g.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            g.courseId.courseName.toLowerCase().includes(searchQuery.toLowerCase())
+          : true;
+        
+        return matchesCourse && matchesSearch;
+      });
 
       return (
         <div>
@@ -432,12 +453,19 @@
               </button>
             </div>
 
-            {/* Filter */}
-            <div className="mb-6">
+            {/* Filter and Search */}
+            <div className="mb-6 flex flex-col md:flex-row gap-4">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search groups by name, description, or course..."
+                className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
               <select
                 value={filterCourse}
                 onChange={(e) => setFilterCourse(e.target.value)}
-                className="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 min-w-[200px]"
               >
                 <option value="">All Courses</option>
                 {courses.map(course => (
@@ -446,9 +474,10 @@
                   </option>
                 ))}
               </select>
-              <span className="ml-4 text-gray-600">
-                Showing {filteredGroups.length} group(s)
-              </span>
+            </div>
+            <div className="mb-4 text-gray-600">
+              Showing {filteredGroups.length} of {groups.length} group(s)
+              {searchQuery && <span className="ml-2 text-blue-600">• Searching: "{searchQuery}"</span>}
             </div>
 
             {/* Groups Grid */}

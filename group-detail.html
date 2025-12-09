@@ -141,6 +141,12 @@
           const data = await res.json();
           
           if (data.status === 'Success') {
+            // FIX: Check if courseId is valid
+            if (!data.group.courseId) {
+              alert('This group references a deleted course. Please contact admin.');
+              window.location.href = 'study-groups.html';
+              return;
+            }
             setGroup(data.group);
           } else {
             alert('Group not found');

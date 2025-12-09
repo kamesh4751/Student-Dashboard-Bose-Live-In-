@@ -45,6 +45,11 @@
 
   <script>
     const loginBtn = document.getElementById("loginBtn");
+    
+    // Admin credentials
+    const ADMIN_EMAIL = "founder@gmail.com";
+    const ADMIN_PASSWORD = "founder@123";
+    
     loginBtn.addEventListener("click", async () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -54,6 +59,20 @@
         return;
       }
 
+      // Check if admin credentials
+      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        // Store admin session
+        localStorage.setItem('userId', 'admin');
+        localStorage.setItem('userName', 'Admin');
+        localStorage.setItem('userEmail', ADMIN_EMAIL);
+        localStorage.setItem('isAdmin', 'true');
+        
+        alert("Admin login successful!");
+        window.location.href = "admin.html";
+        return;
+      }
+
+      // Regular user login
       try {
         const res = await fetch("http://localhost:3001/login", {
           method: "POST",
@@ -71,6 +90,7 @@
           localStorage.setItem('userName', data.name);
           localStorage.setItem('userEmail', data.email);
           localStorage.setItem('userStuid', data.stuid);
+          localStorage.setItem('isAdmin', 'false');
           
           alert("Login successful!");
           

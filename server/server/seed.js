@@ -12,14 +12,6 @@ const seedCourses = async () => {
     await CourseModel.deleteMany({});
     console.log('🗑️  Cleared existing courses');
 
-    // Drop ALL existing indexes (including the problematic slug_1 index)
-    try {
-      await CourseModel.collection.dropIndexes();
-      console.log('🗑️  Dropped old indexes');
-    } catch (err) {
-      console.log('⚠️  No indexes to drop (this is fine)');
-    }
-
     // Create courses
     const courses = await CourseModel.insertMany([
       {
@@ -102,7 +94,6 @@ const seedCourses = async () => {
       console.log(`   📚 ${course.courseName} (${course.courseCode})`);
     });
 
-    console.log('\n🎉 Seeding complete! You can now start your server.');
     process.exit(0);
   } catch (err) {
     console.error('❌ Error seeding database:', err);
@@ -111,3 +102,10 @@ const seedCourses = async () => {
 };
 
 seedCourses();
+
+// ============================================
+// HOW TO RUN THIS SCRIPT:
+// ============================================
+// 1. Navigate to: server/server/
+// 2. Run: node seed.js
+// ============================================

@@ -97,6 +97,7 @@
       const [userId, setUserId] = useState('');
       const [loading, setLoading] = useState(true);
       const [enrolling, setEnrolling] = useState(false);
+      const [completing, setCompleting] = useState(false);
 
       useEffect(() => {
         const storedUserId = localStorage.getItem('userId');
@@ -106,7 +107,6 @@
         }
         setUserId(storedUserId);
 
-        // Get course ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const courseId = urlParams.get('id');
         
@@ -137,7 +137,7 @@
 
           if (enrollmentsData.status === 'Success') {
             const currentEnrollment = enrollmentsData.enrollments.find(
-              e => e.courseId._id === courseId
+              e => e.courseId && e.courseId._id === courseId
             );
             setEnrollment(currentEnrollment || null);
           }
@@ -184,6 +184,7 @@
       const handleCompleteCourse = async () => {
         if (!enrollment) return;
 
+        setCompleting(true);
         try {
           const res = await fetch(`${API_URL}/api/enrollments/${enrollment._id}/complete`, {
             method: 'PUT',
@@ -194,12 +195,19 @@
           const data = await res.json();
           
           if (data.status === 'Success') {
-            alert('Congratulations! Course completed! +50 points');
+            alert('Congratulations! Course completed! +50 points added to your community score!');
             setEnrollment(data.enrollment);
+            
+            // Refresh to update stats
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
           }
         } catch (err) {
           console.error('Error completing course:', err);
           alert('Failed to complete course');
+        } finally {
+          setCompleting(false);
         }
       };
 
@@ -228,7 +236,6 @@
           <NavBar isSidebarCollapsed={isSidebarCollapsed} toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)} />
           
           <div className={`main-content ${isSidebarCollapsed ? 'ml-[60px]' : 'ml-[250px]'} p-6 min-h-screen`}>
-            {/* Back Button */}
             <div className="mb-6">
               <a href="index.html" className="text-blue-600 hover:underline flex items-center">
                 <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,7 +245,6 @@
               </a>
             </div>
 
-            {/* Course Header */}
             <div className="card p-8 mb-6">
               <div className="flex flex-col md:flex-row gap-6">
                 <img 
@@ -301,16 +307,17 @@
                       <button
                         onClick={handleEnroll}
                         disabled={enrolling}
-                        className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+                        className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-medium disabled:opacity-50"
                       >
                         {enrolling ? 'Enrolling...' : 'Enroll Now'}
                       </button>
                     ) : !isCompleted ? (
                       <button
                         onClick={handleCompleteCourse}
-                        className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-medium"
+                        disabled={completing}
+                        className="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50"
                       >
-                        Mark as Completed
+                        {completing ? 'Completing...' : 'Mark as Completed'}
                       </button>
                     ) : (
                       <div className="bg-green-100 text-green-800 px-8 py-3 rounded-lg font-medium">
@@ -322,7 +329,6 @@
               </div>
             </div>
 
-            {/* Study Groups for this Course */}
             <div className="card p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold text-gray-800">

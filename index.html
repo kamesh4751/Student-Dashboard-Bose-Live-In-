@@ -121,7 +121,6 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
     
-    // API Base URL
     const API_URL = 'http://localhost:3001';
 
     const NavBar = ({ isSidebarCollapsed, toggleSidebar }) => {
@@ -381,10 +380,12 @@
       return (
         <div className="card p-4">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Available Courses</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {courses.map(course => {
-              // FIX: Check if courseId exists before accessing _id
               const isEnrolled = enrollments.some(e => e.courseId && e.courseId._id === course._id);
+              const enrollment = enrollments.find(e => e.courseId && e.courseId._id === course._id);
+              const isCompleted = enrollment?.status === 'completed';
+              
               return (
                 <a 
                   key={course._id} 
@@ -396,8 +397,12 @@
                     <p className="text-sm font-medium text-gray-800">{course.courseName}</p>
                     <p className="text-xs text-[#60a5fa]">{course.instructor}</p>
                     {isEnrolled && (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mt-1 inline-block">
-                        Enrolled
+                      <span className={`text-xs px-2 py-1 rounded mt-1 inline-block ${
+                        isCompleted 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {isCompleted ? '✓ Completed' : 'In Progress'}
                       </span>
                     )}
                   </div>
@@ -421,18 +426,15 @@
       const [loading, setLoading] = useState(true);
 
       useEffect(() => {
-        // Get user data from localStorage
         const storedUserId = localStorage.getItem('userId');
         const storedUserName = localStorage.getItem('userName');
         const isAdmin = localStorage.getItem('isAdmin');
         
         if (!storedUserId) {
-          // Not logged in, redirect to login
           window.location.href = 'login.html';
           return;
         }
 
-        // If admin, show option to go to admin panel but allow viewing dashboard
         if (isAdmin === 'true') {
           console.log('Admin logged in - has access to both dashboard and admin panel');
         }
@@ -440,13 +442,11 @@
         setUserId(storedUserId);
         setUserName(storedUserName);
 
-        // Fetch data
         fetchDashboardData(storedUserId);
       }, []);
 
       const fetchDashboardData = async (userId) => {
         try {
-          // Fetch all data in parallel
           const [coursesRes, profileRes, enrollmentsRes] = await Promise.all([
             fetch(`${API_URL}/api/courses`),
             fetch(`${API_URL}/api/profile/${userId}`),
@@ -457,23 +457,18 @@
           const profileData = await profileRes.json();
           const enrollmentsData = await enrollmentsRes.json();
 
-          // Set courses
           if (coursesData.status === 'Success') {
             setCourses(coursesData.courses);
           }
 
-          // Set profile data
           if (profileData.status === 'Success') {
             setUserProfile(profileData.profile);
             setCommunityScore(profileData.profile.communityScore || 0);
           }
 
-          // Set enrollments - Filter out invalid enrollments
           if (enrollmentsData.status === 'Success') {
-            // FIX: Filter out enrollments where courseId is null
             const validEnrollments = enrollmentsData.enrollments.filter(e => e.courseId != null);
             setEnrollments(validEnrollments);
-            // Count courses in progress (enrolled but not completed)
             const inProgress = validEnrollments.filter(e => e.status === 'enrolled').length;
             setCoursesInProgress(inProgress);
           }
